@@ -3,6 +3,7 @@ import { inject, injectable } from 'tsyringe';
 import Product from '@modules/products/infra/typeorm/entities/Product';
 import IProductsRepository from '@modules/products/repositories/IProductsRepository';
 import AppError from '@shared/errors/AppError';
+import IStorageProvider from '@shared/container/providers/StorageProvider/models/IStorageProvider';
 import ICategoriesRepository from '../repositories/ICategoriesRepository';
 
 interface IRequest {
@@ -23,6 +24,9 @@ class CreateProductService {
 
     @inject('CategoriesRepository')
     private categoriesRepository: ICategoriesRepository,
+
+    @inject('StorageProvider')
+    private storageProvider: IStorageProvider,
   ) {}
 
   public async execute({
@@ -52,7 +56,13 @@ class CreateProductService {
       throw new AppError('There are no category with the informed id');
     }
 
-    const image = product_image || 'null';
+    let filename = product_image || 'null';
+
+    if (product_image) {
+      filename = await this.storageProvider.saveFile(product_image);
+    } else {
+      filename = 'null';
+    }
 
     const product = await this.productsRepository.create({
       name,
@@ -60,7 +70,7 @@ class CreateProductService {
       price,
       stock,
       category_id,
-      product_image: image,
+      product_image: filename,
     });
 
     product.category = checkCategoryExists;

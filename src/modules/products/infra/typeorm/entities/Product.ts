@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 
 import OrdersProducts from '@modules/orders/infra/typeorm/entities/OrdersProducts';
+import { Expose } from 'class-transformer';
 import Category from './Category';
 
 @Entity('products')
@@ -47,6 +48,13 @@ class Product {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Expose({ name: 'image_url' })
+  getAvatarUrl(): string | null {
+    return this.product_image !== 'null'
+      ? `${process.env.APP_API_URL}/files/${this.product_image}`
+      : null;
+  }
 }
 
 export default Product;

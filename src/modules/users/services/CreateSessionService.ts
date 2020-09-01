@@ -43,16 +43,22 @@ class AuthenticateUserService {
       throw new AppError('Incorrect email/password', 401);
     }
 
-    const { secret, expiresIn } = authConfig.jwt;
-
-    if (!secret) {
+    if (!authConfig.jwt?.secret) {
       throw new AppError('Internal error. Unable to authenticate');
     }
+
+    const { secret, expiresIn } = authConfig.jwt;
 
     const token = sign({ is_admin: user.is_admin }, secret, {
       subject: user.id,
       expiresIn,
     });
+
+    const addresses = user.addresses.sort((a, b) => {
+      return +new Date(a.created_at) - +new Date(b.created_at);
+    });
+
+    user.addresses = addresses;
 
     return {
       user,

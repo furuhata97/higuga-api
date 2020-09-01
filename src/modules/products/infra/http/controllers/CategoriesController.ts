@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import { container } from 'tsyringe';
 import CreateCategoryService from '@modules/products/services/CreateCategoryService';
+import GetCategoriesService from '@modules/products/services/GetCategoriesService';
 
 export default class CategoriesController {
   public async create(request: Request, response: Response): Promise<Response> {
@@ -13,5 +14,12 @@ export default class CategoriesController {
     const category = await createCategory.execute({ name, is_admin });
 
     return response.json(category);
+  }
+
+  public async index(request: Request, response: Response): Promise<Response> {
+    const getCategories = container.resolve(GetCategoriesService);
+    const categories = await getCategories.execute();
+
+    return response.json(categories);
   }
 }

@@ -2,18 +2,15 @@ import { Request, Response } from 'express';
 
 import { container } from 'tsyringe';
 import CreateProductService from '@modules/products/services/CreateProductService';
+import GetProductsService from '@modules/products/services/GetProductsService';
+import { classToClass } from 'class-transformer';
 
 export default class ProductsController {
   public async create(request: Request, response: Response): Promise<Response> {
-    const {
-      name,
-      barcode,
-      stock,
-      price,
-      product_image,
-      category_id,
-    } = request.body;
+    const { name, barcode, stock, price, category_id } = request.body;
     const { is_admin } = request.user;
+    const product_image =
+      request.file !== undefined ? request.file.filename : undefined;
 
     const createProduct = container.resolve(CreateProductService);
 
@@ -27,6 +24,13 @@ export default class ProductsController {
       is_admin,
     });
 
-    return response.json(product);
+    return response.json(classToClass(product));
+  }
+
+  public async index(request: Request, response: Response): Promise<Response> {
+    const getProducts = container.resolve(GetProductsService);
+    const products = await getProducts.execute();
+
+    return response.json(classToClass(products));
   }
 }

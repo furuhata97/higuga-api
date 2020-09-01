@@ -34,6 +34,12 @@ class CategoriesRepository implements ICategoriesRepository {
 
     return product;
   }
+
+  public async getAllCategories(): Promise<Category[]> {
+    const categories = await this.ormRepository.find();
+
+    return categories;
+  }
 }
 
 export default CategoriesRepository;

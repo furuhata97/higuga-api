@@ -30,6 +30,10 @@ class FakeCategoriesRepository implements ICategoriesRepository {
 
     return foundCategory;
   }
+
+  public async getAllCategories(): Promise<Category[]> {
+    return this.categories;
+  }
 }
 
 export default FakeCategoriesRepository;

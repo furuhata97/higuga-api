@@ -1,9 +1,11 @@
-import { getRepository, Repository, In } from 'typeorm';
+import { getRepository, Repository, Raw } from 'typeorm';
 
 import IProductsRepository from '@modules/products/repositories/IProductsRepository';
 import ICreateProductDTO from '@modules/products/dtos/ICreateProductDTO';
+import ISearchProductDTO from '@modules/products/dtos/ISearchProductDTO';
 // import IUpdateProductsQuantityDTO from '@modules/products/dtos/IUpdateProductsQuantityDTO';
 import AppError from '@shared/errors/AppError';
+import { classToClass } from 'class-transformer';
 import Product from '../entities/Product';
 
 interface IFindProducts {
@@ -51,6 +53,58 @@ class ProductsRepository implements IProductsRepository {
     const product = await this.ormRepository.findOne(id);
 
     return product;
+  }
+
+  public async findAllById(products_ids: string[]): Promise<Product[]> {
+    const foundProducts = await this.ormRepository.findByIds(products_ids);
+
+    if (foundProducts.length !== products_ids.length) {
+      throw new AppError('One or more products do not exist');
+    }
+
+    return foundProducts;
+  }
+
+  public async save(product: Product): Promise<Product> {
+    const savedProduct = await this.ormRepository.save(product);
+
+    return savedProduct;
+  }
+
+  public async getAllProducts(): Promise<Product[]> {
+    const products = await this.ormRepository.find();
+
+    return products;
+  }
+
+  public async findBySearchField(search_word: string): Promise<Product[]> {
+    const products = await this.ormRepository.find({
+      name: Raw(nameField => `${nameField} ILIKE '%${search_word}%'`),
+    });
+
+    return products;
+  }
+
+  public async findByCategoryField(category_id: string): Promise<Product[]> {
+    const products = await this.ormRepository.find({
+      where: {
+        category_id,
+      },
+    });
+
+    return products;
+  }
+
+  public async findBySearchAndCategoryField({
+    search_word,
+    category_id,
+  }: ISearchProductDTO): Promise<Product[]> {
+    const products = await this.ormRepository.find({
+      name: Raw(nameField => `${nameField} ILIKE '%${search_word}%'`),
+      category_id,
+    });
+
+    return products;
   }
 
   // public async findAllById(products: IFindProducts[]): Promise<Product[]> {
