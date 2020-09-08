@@ -43,6 +43,9 @@ class Product {
   @OneToMany(() => OrdersProducts, order_products => order_products.product)
   order_products: OrdersProducts[];
 
+  @Column()
+  hidden: boolean;
+
   @CreateDateColumn()
   created_at: Date;
 

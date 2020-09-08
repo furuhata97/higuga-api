@@ -1,0 +1,38 @@
+import { inject, injectable } from 'tsyringe';
+
+import Product from '@modules/products/infra/typeorm/entities/Product';
+import IProductsRepository from '@modules/products/repositories/IProductsRepository';
+import AppError from '@shared/errors/AppError';
+
+interface IRequest {
+  id: string;
+  is_admin: boolean;
+}
+
+@injectable()
+class SetHiddenService {
+  constructor(
+    @inject('ProductsRepository')
+    private productsRepository: IProductsRepository,
+  ) {}
+
+  public async execute({ id, is_admin }: IRequest): Promise<Product> {
+    if (!is_admin) {
+      throw new AppError('User does not have permission for this action');
+    }
+
+    const product = await this.productsRepository.findById(id);
+
+    if (!product) {
+      throw new AppError('The product is not registered');
+    }
+
+    product.hidden = !product.hidden;
+
+    await this.productsRepository.save(product);
+
+    return product;
+  }
+}
+
+export default SetHiddenService;

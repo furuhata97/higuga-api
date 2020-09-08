@@ -1,3 +1,4 @@
+import { DeleteResult } from 'typeorm';
 import Product from '../infra/typeorm/entities/Product';
 
 import ICreateProductDTO from '../dtos/ICreateProductDTO';
@@ -9,6 +10,7 @@ export default interface IProductsRepository {
   findById(id: string): Promise<Product | undefined>;
   findAllById(products_ids: string[]): Promise<Product[]>;
   save(product: Product): Promise<Product>;
+  // delete(id: string): Promise<DeleteResult>;
   getAllProducts(): Promise<Product[]>;
   findBySearchField(search_word: string): Promise<Product[]>;
   findByCategoryField(category_id: string): Promise<Product[]>;

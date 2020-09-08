@@ -12,4 +12,7 @@ export default interface ICreateOrderDTO {
   total: number;
   discount?: number;
   payment_method: string;
+  zip_code: string;
+  city: string;
+  address: string;
 }

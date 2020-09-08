@@ -15,6 +15,9 @@ ordersRouter.post(
     [Segments.BODY]: {
       discount: Joi.number(),
       payment_method: Joi.string().required(),
+      zip_code: Joi.string().required(),
+      city: Joi.string().required(),
+      address: Joi.string().required(),
       products: Joi.array()
         .items(
           Joi.object()

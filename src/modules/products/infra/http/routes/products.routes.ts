@@ -8,10 +8,12 @@ import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAut
 
 import ProductsController from '../controllers/ProductsController';
 import SearchProductsController from '../controllers/SearchProductsController';
+import SetHiddenProductController from '../controllers/SetHiddenProductController';
 
 const productsRouter = Router();
 const productsController = new ProductsController();
 const searchProductsController = new SearchProductsController();
+const setHiddenProductController = new SetHiddenProductController();
 const upload = multer(uploadConfig);
 
 productsRouter.post(
@@ -31,8 +33,37 @@ productsRouter.post(
   productsController.create,
 );
 
+productsRouter.put(
+  '/',
+  ensureAuthenticated,
+  upload.single('product_image'),
+  celebrate({
+    [Segments.BODY]: {
+      id: Joi.string().required(),
+      name: Joi.string().required(),
+      barcode: Joi.string().required(),
+      stock: Joi.number().required(),
+      price: Joi.number().required(),
+      category_id: Joi.string().required(),
+    },
+  }),
+
+  productsController.update,
+);
+
 productsRouter.get('/', productsController.index);
 
 productsRouter.get('/search', searchProductsController.index);
+
+productsRouter.patch(
+  '/hidden',
+  ensureAuthenticated,
+  celebrate({
+    [Segments.BODY]: {
+      id: Joi.string().required(),
+    },
+  }),
+  setHiddenProductController.update,
+);
 
 export default productsRouter;

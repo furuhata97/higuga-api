@@ -42,6 +42,15 @@ class Order {
   @Column()
   payment_method: string;
 
+  @Column()
+  zip_code: string;
+
+  @Column()
+  city: string;
+
+  @Column()
+  address: string;
+
   @CreateDateColumn()
   created_at: Date;
 

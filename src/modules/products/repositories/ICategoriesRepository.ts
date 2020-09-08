@@ -5,5 +5,6 @@ export default interface ICategoriesRepository {
   findByName(name: string): Promise<Category | undefined>;
   findById(id: string): Promise<Category | undefined>;
   getAllCategories(): Promise<Category[]>;
+  save(product: Category): Promise<Category>;
   // updateQuantity(products: IUpdateProductsQuantityDTO[]): Promise<Product[]>;
 }

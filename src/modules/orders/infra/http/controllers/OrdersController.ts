@@ -8,7 +8,14 @@ import CreateOrderService from '@modules/orders/services/CreateOrderService';
 export default class OrdersController {
   public async create(request: Request, response: Response): Promise<Response> {
     const { id } = request.user;
-    const { products, discount, payment_method } = request.body;
+    const {
+      products,
+      discount,
+      payment_method,
+      zip_code,
+      city,
+      address,
+    } = request.body;
 
     const createOrder = container.resolve(CreateOrderService);
 
@@ -17,6 +24,9 @@ export default class OrdersController {
       products,
       discount,
       payment_method,
+      zip_code,
+      city,
+      address,
     });
 
     return response.json(classToClass(order));

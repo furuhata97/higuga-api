@@ -17,6 +17,9 @@ interface IRequest {
   products: IProduct[];
   discount?: number;
   payment_method: string;
+  zip_code: string;
+  city: string;
+  address: string;
 }
 
 @injectable()
@@ -37,6 +40,9 @@ class CreateOrderService {
     products,
     discount,
     payment_method,
+    zip_code,
+    city,
+    address,
   }: IRequest): Promise<Order> {
     const user = await this.usersRepository.findById(user_id);
 
@@ -98,6 +104,9 @@ class CreateOrderService {
       payment_method,
       total,
       discount: realDiscount,
+      zip_code,
+      city,
+      address,
     });
 
     productsUpdated.map(async product => {

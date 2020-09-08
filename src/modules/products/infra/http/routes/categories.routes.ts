@@ -20,6 +20,18 @@ categoriesRouter.post(
   categoriesController.create,
 );
 
+categoriesRouter.put(
+  '/',
+  celebrate({
+    [Segments.BODY]: {
+      id: Joi.string().required(),
+      name: Joi.string().required(),
+    },
+  }),
+  ensureAuthenticated,
+  categoriesController.update,
+);
+
 categoriesRouter.get('/', categoriesController.index);
 
 export default categoriesRouter;

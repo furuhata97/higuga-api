@@ -35,6 +35,12 @@ class CategoriesRepository implements ICategoriesRepository {
     return product;
   }
 
+  public async save(category: Category): Promise<Category> {
+    const saveCategory = await this.ormRepository.save(category);
+
+    return saveCategory;
+  }
+
   public async getAllCategories(): Promise<Category[]> {
     const categories = await this.ormRepository.find();
 

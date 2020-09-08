@@ -1,13 +1,13 @@
-/* eslint-disable no-plusplus */
 import { inject, injectable } from 'tsyringe';
 
 import Product from '@modules/products/infra/typeorm/entities/Product';
 import IProductsRepository from '@modules/products/repositories/IProductsRepository';
+import ICategoriesRepository from '@modules/products/repositories/ICategoriesRepository';
 import AppError from '@shared/errors/AppError';
 import IStorageProvider from '@shared/container/providers/StorageProvider/models/IStorageProvider';
-import ICategoriesRepository from '../repositories/ICategoriesRepository';
 
 interface IRequest {
+  id: string;
   name: string;
   barcode: string;
   stock: number;
@@ -18,7 +18,7 @@ interface IRequest {
 }
 
 @injectable()
-class CreateProductService {
+class UpdateProductService {
   constructor(
     @inject('ProductsRepository')
     private productsRepository: IProductsRepository,
@@ -31,6 +31,7 @@ class CreateProductService {
   ) {}
 
   public async execute({
+    id,
     name,
     barcode,
     price,
@@ -43,41 +44,39 @@ class CreateProductService {
       throw new AppError('User does not have permission for this action');
     }
 
-    const checkProductExists = await this.productsRepository.findByName(name);
+    const product = await this.productsRepository.findById(id);
 
-    if (checkProductExists) {
-      throw new AppError('Product already exists');
+    if (!product) {
+      throw new AppError('The product is not registered');
     }
 
-    const checkCategoryExists = await this.categoriesRepository.findById(
-      category_id,
-    );
+    const category = await this.categoriesRepository.findById(category_id);
 
-    if (!checkCategoryExists) {
-      throw new AppError('There are no category with the informed id');
+    if (!category) {
+      throw new AppError('The selected category is not registered');
     }
 
-    let filename = product_image || 'null';
+    product.name = name;
+    product.barcode = barcode;
+    product.price = price;
+    product.stock = stock;
+    product.category_id = category_id;
+    product.category = category;
 
+    let filename = '';
     if (product_image) {
+      await this.storageProvider.deleteFile(product.product_image);
       filename = await this.storageProvider.saveFile(product_image);
     } else {
-      filename = 'null';
+      filename = product.product_image;
     }
 
-    const product = await this.productsRepository.create({
-      name,
-      barcode,
-      price,
-      stock,
-      category_id,
-      product_image: filename,
-    });
+    product.product_image = filename;
 
-    product.category = checkCategoryExists;
+    await this.productsRepository.save(product);
 
     return product;
   }
 }
 
-export default CreateProductService;
+export default UpdateProductService;

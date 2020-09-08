@@ -1,4 +1,4 @@
-import { getRepository, Repository, Raw } from 'typeorm';
+import { getRepository, Repository, Raw, DeleteResult } from 'typeorm';
 
 import IProductsRepository from '@modules/products/repositories/IProductsRepository';
 import ICreateProductDTO from '@modules/products/dtos/ICreateProductDTO';
@@ -106,6 +106,11 @@ class ProductsRepository implements IProductsRepository {
 
     return products;
   }
+
+  // public async delete(id: string): Promise<DeleteResult> {
+  //   const result = await this.ormRepository.delete(id);
+  //   return result;
+  // }
 
   // public async findAllById(products: IFindProducts[]): Promise<Product[]> {
   //   const ids = products.map(product => product.id);

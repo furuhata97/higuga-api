@@ -17,6 +17,9 @@ class OrdersRepository implements IOrdersRepository {
     payment_method,
     total,
     discount,
+    zip_code,
+    city,
+    address,
   }: ICreateOrderDTO): Promise<Order> {
     const order = this.ormRepository.create({
       user,
@@ -25,6 +28,9 @@ class OrdersRepository implements IOrdersRepository {
       total,
       discount,
       status: 'EM PROCESSAMENTO',
+      zip_code,
+      city,
+      address,
     });
 
     await this.ormRepository.save(order);
