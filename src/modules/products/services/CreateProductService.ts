@@ -43,6 +43,16 @@ class CreateProductService {
       throw new AppError('User does not have permission for this action');
     }
 
+    const checkBarcode = await this.productsRepository.findByBarcode(barcode);
+
+    if (checkBarcode) {
+      throw new AppError('Product already exists');
+    }
+
+    if (barcode.length < 13 || barcode.length > 13) {
+      throw new AppError('Invalid barcode');
+    }
+
     const checkProductExists = await this.productsRepository.findByName(name);
 
     if (checkProductExists) {

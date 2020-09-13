@@ -1,11 +1,10 @@
-import { getRepository, Repository, Raw, DeleteResult } from 'typeorm';
+import { getRepository, Repository, Raw } from 'typeorm';
 
 import IProductsRepository from '@modules/products/repositories/IProductsRepository';
 import ICreateProductDTO from '@modules/products/dtos/ICreateProductDTO';
 import ISearchProductDTO from '@modules/products/dtos/ISearchProductDTO';
 // import IUpdateProductsQuantityDTO from '@modules/products/dtos/IUpdateProductsQuantityDTO';
 import AppError from '@shared/errors/AppError';
-import { classToClass } from 'class-transformer';
 import Product from '../entities/Product';
 
 interface IFindProducts {
@@ -44,6 +43,14 @@ class ProductsRepository implements IProductsRepository {
   public async findByName(name: string): Promise<Product | undefined> {
     const product = await this.ormRepository.findOne({
       where: { name },
+    });
+
+    return product;
+  }
+
+  public async findByBarcode(barcode: string): Promise<Product | undefined> {
+    const product = await this.ormRepository.findOne({
+      where: { barcode },
     });
 
     return product;

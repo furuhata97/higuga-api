@@ -8,6 +8,7 @@ export default interface IProductsRepository {
   create(data: ICreateProductDTO): Promise<Product>;
   findByName(name: string): Promise<Product | undefined>;
   findById(id: string): Promise<Product | undefined>;
+  findByBarcode(id: string): Promise<Product | undefined>;
   findAllById(products_ids: string[]): Promise<Product[]>;
   save(product: Product): Promise<Product>;
   // delete(id: string): Promise<DeleteResult>;

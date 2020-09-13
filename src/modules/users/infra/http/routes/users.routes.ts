@@ -3,12 +3,16 @@ import { celebrate, Segments, Joi } from 'celebrate';
 
 import UsersController from '../controllers/UsersController';
 import AddressesController from '../controllers/AddressesController';
+import AllUsersController from '../controllers/AllUsersController';
+import SetAdminController from '../controllers/SetAdminController';
 
 import ensureAuthenticated from '../middlewares/ensureAuthenticated';
 
 const usersRouter = Router();
 const usersController = new UsersController();
 const addressesController = new AddressesController();
+const allUsersController = new AllUsersController();
+const setAdminController = new SetAdminController();
 
 usersRouter.post(
   '/',
@@ -79,6 +83,19 @@ usersRouter.delete(
   }),
   ensureAuthenticated,
   addressesController.delete,
+);
+
+usersRouter.get('/all', ensureAuthenticated, allUsersController.index);
+
+usersRouter.patch(
+  '/admin',
+  celebrate({
+    [Segments.BODY]: {
+      user_id: Joi.string().required(),
+    },
+  }),
+  ensureAuthenticated,
+  setAdminController.update,
 );
 
 export default usersRouter;

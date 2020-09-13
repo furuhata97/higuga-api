@@ -13,4 +13,5 @@ export default interface IUsersRepository {
   findAddressById(id: string): Promise<Address | undefined>;
   updateAddress(address: Address): Promise<Address>;
   deleteAddress(id: string): Promise<DeleteResult>;
+  findAllUsers(): Promise<User[]>;
 }

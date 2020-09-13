@@ -9,11 +9,13 @@ import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAut
 import ProductsController from '../controllers/ProductsController';
 import SearchProductsController from '../controllers/SearchProductsController';
 import SetHiddenProductController from '../controllers/SetHiddenProductController';
+import GetByBarcodeController from '../controllers/GetByBarcodeController';
 
 const productsRouter = Router();
 const productsController = new ProductsController();
 const searchProductsController = new SearchProductsController();
 const setHiddenProductController = new SetHiddenProductController();
+const getByBarcodeController = new GetByBarcodeController();
 const upload = multer(uploadConfig);
 
 productsRouter.post(
@@ -54,6 +56,12 @@ productsRouter.put(
 productsRouter.get('/', productsController.index);
 
 productsRouter.get('/search', searchProductsController.index);
+
+productsRouter.get(
+  '/barcode',
+  ensureAuthenticated,
+  getByBarcodeController.index,
+);
 
 productsRouter.patch(
   '/hidden',

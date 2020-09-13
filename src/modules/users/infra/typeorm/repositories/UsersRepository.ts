@@ -91,6 +91,12 @@ class UsersRepository implements IUsersRepository {
     const result = await this.ormAddressRepository.delete(id);
     return result;
   }
+
+  public async findAllUsers(): Promise<User[]> {
+    const users = await this.ormUserRepository.find();
+
+    return users;
+  }
 }
 
 export default UsersRepository;

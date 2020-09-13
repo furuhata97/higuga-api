@@ -50,6 +50,18 @@ class UpdateProductService {
       throw new AppError('The product is not registered');
     }
 
+    const nameProduct = await this.productsRepository.findByName(name);
+
+    if (nameProduct && nameProduct.name !== name) {
+      throw new AppError('The informed barcode is already registered');
+    }
+
+    const barcodePoduct = await this.productsRepository.findByBarcode(barcode);
+
+    if (barcodePoduct && barcodePoduct.barcode !== barcode) {
+      throw new AppError('The informed barcode is already registered');
+    }
+
     const category = await this.categoriesRepository.findById(category_id);
 
     if (!category) {

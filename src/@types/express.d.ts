@@ -6,3 +6,9 @@ declare namespace Express {
     };
   }
 }
+
+declare namespace Express {
+  export interface ParsedQs {
+    sale_date: Date;
+  }
+}
