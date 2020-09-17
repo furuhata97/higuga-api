@@ -18,6 +18,14 @@ import OrdersRepository from '@modules/orders/infra/typeorm/repositories/OrdersR
 import ISalesRepository from '@modules/sales/repositories/ISalesRepository';
 import SalesRepository from '@modules/sales/infra/typeorm/repositories/SalesRepository';
 
+import IProductsRemovalRepository from '@modules/products/repositories/IProductsRemovalRepository';
+import ProductsRemovalRepository from '@modules/products/infra/typeorm/repositories/ProductsRemovalRepository';
+
+container.registerSingleton<IProductsRemovalRepository>(
+  'ProductsRemovalRepository',
+  ProductsRemovalRepository,
+);
+
 container.registerSingleton<IUsersRepository>(
   'UsersRepository',
   UsersRepository,

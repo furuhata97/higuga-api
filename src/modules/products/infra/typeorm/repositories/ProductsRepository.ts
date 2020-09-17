@@ -5,6 +5,8 @@ import ICreateProductDTO from '@modules/products/dtos/ICreateProductDTO';
 import ISearchProductDTO from '@modules/products/dtos/ISearchProductDTO';
 // import IUpdateProductsQuantityDTO from '@modules/products/dtos/IUpdateProductsQuantityDTO';
 import AppError from '@shared/errors/AppError';
+import IGetProductsDTO from '@modules/products/dtos/IGetProductsDTO';
+import ISingleSearchProducts from '@modules/products/dtos/ISingleSearchProductsDTO';
 import Product from '../entities/Product';
 
 interface IFindProducts {
@@ -78,40 +80,160 @@ class ProductsRepository implements IProductsRepository {
     return savedProduct;
   }
 
-  public async getAllProducts(): Promise<Product[]> {
-    const products = await this.ormRepository.find();
+  public async getAllProducts({
+    take,
+    skip,
+    type,
+  }: IGetProductsDTO): Promise<[Product[], number]> {
+    if (type === 'public') {
+      const products = await this.ormRepository.findAndCount({
+        where: { hidden: false },
+        take,
+        skip,
+      });
 
-    return products;
+      return products;
+    }
+    if (type === 'private') {
+      const products = await this.ormRepository.findAndCount({
+        take,
+        skip,
+      });
+
+      return products;
+    }
+
+    throw new AppError('The informed type is incorrect');
   }
 
-  public async findBySearchField(search_word: string): Promise<Product[]> {
-    const products = await this.ormRepository.find({
-      name: Raw(nameField => `${nameField} ILIKE '%${search_word}%'`),
-    });
+  public async findBySearchField({
+    take,
+    skip,
+    type,
+    search,
+  }: ISingleSearchProducts): Promise<[Product[], number]> {
+    let searchName = search.toUpperCase();
+    searchName = searchName.replace(/[ÀÁÂÃÄÅ]/, 'A');
+    searchName = searchName.replace(/[ÈÉÊË]/, 'E');
+    searchName = searchName.replace(/[ÚÙÛÜ]/, 'U');
+    searchName = searchName.replace(/[ÕÓÒÔÖ]/, 'O');
+    searchName = searchName.replace(/['Ç']/, 'C');
 
-    return products;
+    if (type === 'public') {
+      const products = await this.ormRepository.findAndCount({
+        where: {
+          name: Raw(
+            nameField => `unaccent(${nameField}) ILIKE unaccent('%${search}%')`,
+          ),
+          hidden: false,
+        },
+        take,
+        skip,
+      });
+
+      return products;
+    }
+
+    if (type === 'private') {
+      const products = await this.ormRepository.findAndCount({
+        where: {
+          name: Raw(
+            nameField =>
+              `${nameField} ILIKE '%${search}%' OR ${nameField} ILIKE '%${searchName}%'`,
+          ),
+        },
+        take,
+        skip,
+      });
+
+      return products;
+    }
+
+    throw new AppError('The informed type is incorrect');
   }
 
-  public async findByCategoryField(category_id: string): Promise<Product[]> {
-    const products = await this.ormRepository.find({
-      where: {
-        category_id,
-      },
-    });
+  public async findByCategoryField({
+    take,
+    skip,
+    type,
+    search,
+  }: ISingleSearchProducts): Promise<[Product[], number]> {
+    if (type === 'public') {
+      const products = await this.ormRepository.findAndCount({
+        where: {
+          category_id: search,
+          hidden: false,
+        },
+        take,
+        skip,
+      });
 
-    return products;
+      return products;
+    }
+
+    if (type === 'private') {
+      const products = await this.ormRepository.findAndCount({
+        where: {
+          category_id: search,
+        },
+        take,
+        skip,
+      });
+
+      return products;
+    }
+
+    throw new AppError('The informed type is incorrect');
   }
 
   public async findBySearchAndCategoryField({
     search_word,
     category_id,
-  }: ISearchProductDTO): Promise<Product[]> {
-    const products = await this.ormRepository.find({
-      name: Raw(nameField => `${nameField} ILIKE '%${search_word}%'`),
-      category_id,
-    });
+    take,
+    skip,
+    type,
+  }: ISearchProductDTO): Promise<[Product[], number]> {
+    let searchName = search_word.toUpperCase();
+    searchName = searchName.replace(/[ÀÁÂÃÄÅ]/, 'A');
+    searchName = searchName.replace(/[ÈÉÊË]/, 'E');
+    searchName = searchName.replace(/[ÚÙÛÜ]/, 'U');
+    searchName = searchName.replace(/[ÕÓÒÔÖ]/, 'O');
+    searchName = searchName.replace(/['Ç']/, 'C');
 
-    return products;
+    if (type === 'public') {
+      const products = await this.ormRepository.findAndCount({
+        where: {
+          name: Raw(
+            nameField =>
+              `${nameField} ILIKE '%${search_word}%' OR ${nameField} ILIKE '%${searchName}%'`,
+          ),
+          category_id,
+          hidden: false,
+        },
+        take,
+        skip,
+      });
+
+      return products;
+    }
+
+    if (type === 'private') {
+      const products = await this.ormRepository.findAndCount({
+        where: {
+          name: Raw(
+            nameField =>
+              `${nameField} ILIKE '%${search_word}%' OR ${nameField} ILIKE '%${searchName}%'`,
+          ),
+          category_id,
+        },
+        take,
+        skip,
+      });
+
+      return products;
+    }
+
+    throw new AppError('The informed type is incorrect');
   }
 
   // public async delete(id: string): Promise<DeleteResult> {

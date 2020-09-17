@@ -3,6 +3,8 @@ import Product from '../infra/typeorm/entities/Product';
 
 import ICreateProductDTO from '../dtos/ICreateProductDTO';
 import ISearchProductDTO from '../dtos/ISearchProductDTO';
+import IGetProductsDTO from '../dtos/IGetProductsDTO';
+import ISingleSearchProductsDTO from '../dtos/ISingleSearchProductsDTO';
 
 export default interface IProductsRepository {
   create(data: ICreateProductDTO): Promise<Product>;
@@ -12,9 +14,15 @@ export default interface IProductsRepository {
   findAllById(products_ids: string[]): Promise<Product[]>;
   save(product: Product): Promise<Product>;
   // delete(id: string): Promise<DeleteResult>;
-  getAllProducts(): Promise<Product[]>;
-  findBySearchField(search_word: string): Promise<Product[]>;
-  findByCategoryField(category_id: string): Promise<Product[]>;
-  findBySearchAndCategoryField(data: ISearchProductDTO): Promise<Product[]>;
+  getAllProducts(data: IGetProductsDTO): Promise<[Product[], number]>;
+  findBySearchField(
+    data: ISingleSearchProductsDTO,
+  ): Promise<[Product[], number]>;
+  findByCategoryField(
+    data: ISingleSearchProductsDTO,
+  ): Promise<[Product[], number]>;
+  findBySearchAndCategoryField(
+    data: ISearchProductDTO,
+  ): Promise<[Product[], number]>;
   // updateQuantity(products: IUpdateProductsQuantityDTO[]): Promise<Product[]>;
 }

@@ -10,12 +10,15 @@ import ProductsController from '../controllers/ProductsController';
 import SearchProductsController from '../controllers/SearchProductsController';
 import SetHiddenProductController from '../controllers/SetHiddenProductController';
 import GetByBarcodeController from '../controllers/GetByBarcodeController';
+import ProductRemovalController from '../controllers/ProductRemovalController';
 
 const productsRouter = Router();
 const productsController = new ProductsController();
 const searchProductsController = new SearchProductsController();
 const setHiddenProductController = new SetHiddenProductController();
 const getByBarcodeController = new GetByBarcodeController();
+const productRemovalController = new ProductRemovalController();
+
 const upload = multer(uploadConfig);
 
 productsRouter.post(
@@ -53,9 +56,31 @@ productsRouter.put(
   productsController.update,
 );
 
-productsRouter.get('/', productsController.index);
+productsRouter.get(
+  '/',
+  celebrate({
+    [Segments.QUERY]: {
+      take: Joi.number().required(),
+      skip: Joi.number().required(),
+      type: Joi.string().required(),
+    },
+  }),
+  productsController.index,
+);
 
-productsRouter.get('/search', searchProductsController.index);
+productsRouter.get(
+  '/search',
+  celebrate({
+    [Segments.QUERY]: {
+      search_word: Joi.string(),
+      category_id: Joi.string(),
+      take: Joi.number().required(),
+      skip: Joi.number().required(),
+      type: Joi.string().required(),
+    },
+  }),
+  searchProductsController.index,
+);
 
 productsRouter.get(
   '/barcode',
@@ -72,6 +97,19 @@ productsRouter.patch(
     },
   }),
   setHiddenProductController.update,
+);
+
+productsRouter.patch(
+  '/removal-quantity',
+  ensureAuthenticated,
+  celebrate({
+    [Segments.BODY]: {
+      product_id: Joi.string().required(),
+      product_name: Joi.string().required(),
+      quantity_removed: Joi.number().required(),
+    },
+  }),
+  productRemovalController.update,
 );
 
 export default productsRouter;

@@ -1,7 +1,10 @@
 import { inject, injectable } from 'tsyringe';
+import { startOfMonth, startOfWeek, startOfDay } from 'date-fns';
 
 import AppError from '@shared/errors/AppError';
+import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider';
 import ISalesRepository from '../repositories/ISalesRepository';
+
 import Sale from '../infra/typeorm/entities/Sale';
 
 interface IRequest {
@@ -16,6 +19,9 @@ class UpdateSaleService {
   constructor(
     @inject('SalesRepository')
     private salesRepository: ISalesRepository,
+
+    @inject('CacheProvider')
+    private cacheProvider: ICacheProvider,
   ) {}
 
   public async execute({
@@ -69,7 +75,25 @@ class UpdateSaleService {
     saleToUpdate.payment_method = payment;
     saleToUpdate.status = 'PAGO';
 
-    return this.salesRepository.save(saleToUpdate);
+    const updatedSale = await this.salesRepository.save(saleToUpdate);
+
+    const startDay = startOfDay(new Date());
+    const startWeek = startOfWeek(new Date());
+    const startMonth = startOfMonth(new Date());
+
+    await this.cacheProvider.invalidate(
+      `sales-list:${JSON.stringify(startDay)}:day`,
+    );
+
+    await this.cacheProvider.invalidate(
+      `sales-list:${JSON.stringify(startWeek)}:week`,
+    );
+
+    await this.cacheProvider.invalidate(
+      `sales-list:${JSON.stringify(startMonth)}:month`,
+    );
+
+    return updatedSale;
   }
 }
 

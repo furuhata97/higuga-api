@@ -9,6 +9,7 @@ import {
   endOfWeek,
   startOfMonth,
   endOfMonth,
+  addHours,
 } from 'date-fns';
 import Sale from '../entities/Sale';
 
@@ -47,17 +48,20 @@ class SalesRepository implements ISalesRepository {
   }
 
   public async getFinishedByDate(sale_date: Date): Promise<Sale[]> {
+    const startDate = addHours(startOfDay(sale_date), 3);
+    const endDate = addHours(endOfDay(sale_date), 3);
+
     const salesEarlyPaid = await this.ormRepository.find({
       where: {
         status: 'FINALIZADO',
-        created_at: Between(startOfDay(sale_date), endOfDay(sale_date)),
+        created_at: Between(startDate, endDate),
       },
     });
 
     const salesLatePaid = await this.ormRepository.find({
       where: {
         status: 'PAGO',
-        updated_at: Between(startOfDay(sale_date), endOfDay(sale_date)),
+        updated_at: Between(startDate, endDate),
       },
     });
 
@@ -65,17 +69,20 @@ class SalesRepository implements ISalesRepository {
   }
 
   public async getFinishedByWeek(sale_date: Date): Promise<Sale[]> {
+    const startDate = addHours(startOfWeek(sale_date), 3);
+    const endDate = addHours(endOfWeek(sale_date), 3);
+
     const salesEarlyPaid = await this.ormRepository.find({
       where: {
         status: 'FINALIZADO',
-        created_at: Between(startOfWeek(sale_date), endOfWeek(sale_date)),
+        created_at: Between(startDate, endDate),
       },
     });
 
     const salesLatePaid = await this.ormRepository.find({
       where: {
         status: 'PAGO',
-        updated_at: Between(startOfWeek(sale_date), endOfWeek(sale_date)),
+        updated_at: Between(startDate, endDate),
       },
     });
 
@@ -83,17 +90,20 @@ class SalesRepository implements ISalesRepository {
   }
 
   public async getFinishedByMonth(sale_date: Date): Promise<Sale[]> {
+    const startDate = addHours(startOfMonth(sale_date), 3);
+    const endDate = addHours(endOfMonth(sale_date), 3);
+
     const salesEarlyPaid = await this.ormRepository.find({
       where: {
         status: 'FINALIZADO',
-        created_at: Between(startOfMonth(sale_date), endOfMonth(sale_date)),
+        created_at: Between(startDate, endDate),
       },
     });
 
     const salesLatePaid = await this.ormRepository.find({
       where: {
         status: 'PAGO',
-        updated_at: Between(startOfMonth(sale_date), endOfMonth(sale_date)),
+        updated_at: Between(startDate, endDate),
       },
     });
 
@@ -121,12 +131,6 @@ class SalesRepository implements ISalesRepository {
 
     return sale;
   }
-
-  // public async findById(id: string): Promise<Order | undefined> {
-  //   const order = await this.ormRepository.findOne({ id });
-
-  //   return order;
-  // }
 }
 
 export default SalesRepository;

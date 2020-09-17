@@ -29,8 +29,13 @@ export default class ProductsController {
   }
 
   public async index(request: Request, response: Response): Promise<Response> {
+    const { take, skip, type } = request.query;
     const getProducts = container.resolve(GetProductsService);
-    const products = await getProducts.execute();
+    const products = await getProducts.execute({
+      take: Number(take),
+      skip: Number(skip),
+      type: String(type),
+    });
 
     return response.json(classToClass(products));
   }

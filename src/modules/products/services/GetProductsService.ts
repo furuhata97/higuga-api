@@ -3,6 +3,12 @@ import { inject, injectable } from 'tsyringe';
 import Product from '@modules/products/infra/typeorm/entities/Product';
 import IProductsRepository from '@modules/products/repositories/IProductsRepository';
 
+interface IRequest {
+  take: number;
+  skip: number;
+  type: string;
+}
+
 @injectable()
 class GetProductsService {
   constructor(
@@ -10,8 +16,16 @@ class GetProductsService {
     private productsRepository: IProductsRepository,
   ) {}
 
-  public async execute(): Promise<Product[]> {
-    const products = await this.productsRepository.getAllProducts();
+  public async execute({
+    take,
+    skip,
+    type,
+  }: IRequest): Promise<[Product[], number]> {
+    const products = await this.productsRepository.getAllProducts({
+      take,
+      skip,
+      type,
+    });
 
     return products;
   }
