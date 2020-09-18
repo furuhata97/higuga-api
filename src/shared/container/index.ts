@@ -21,6 +21,9 @@ import SalesRepository from '@modules/sales/infra/typeorm/repositories/SalesRepo
 import IProductsRemovalRepository from '@modules/products/repositories/IProductsRemovalRepository';
 import ProductsRemovalRepository from '@modules/products/infra/typeorm/repositories/ProductsRemovalRepository';
 
+import IUserTokensRepository from '@modules/users/repositories/IUserTokensRepository';
+import UserTokensRepository from '@modules/users/infra/typeorm/repositories/UserTokensRepository';
+
 container.registerSingleton<IProductsRemovalRepository>(
   'ProductsRemovalRepository',
   ProductsRemovalRepository,
@@ -49,4 +52,9 @@ container.registerSingleton<IOrdersRepository>(
 container.registerSingleton<ISalesRepository>(
   'SalesRepository',
   SalesRepository,
+);
+
+container.registerSingleton<IUserTokensRepository>(
+  'UserTokensRepository',
+  UserTokensRepository,
 );

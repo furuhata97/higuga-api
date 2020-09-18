@@ -5,7 +5,6 @@ import IUsersRepository from '@modules/users/repositories/IUsersRepository';
 import ICreateUserDTO from '@modules/users/dtos/ICreateUserDTO';
 
 import IAddAddressDTO from '@modules/users/dtos/IAddAddressDTO';
-import AppError from '@shared/errors/AppError';
 import User from '../entities/User';
 import Address from '../entities/Address';
 
