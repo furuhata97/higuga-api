@@ -11,7 +11,10 @@ const providers = {
   ses: container.resolve(SESMailProvider),
 };
 
-container.registerInstance<IMailProvider>(
-  'MailProvider',
-  providers[mailConfig.driver],
-);
+if (mailConfig.driver === 'ethereal') {
+  container.registerInstance<IMailProvider>('MailProvider', providers.ethereal);
+}
+
+if (mailConfig.driver === 'ses') {
+  container.registerInstance<IMailProvider>('MailProvider', providers.ses);
+}

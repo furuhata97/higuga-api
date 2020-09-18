@@ -8,6 +8,7 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
+import uploadConfig from '@config/upload';
 
 import OrdersProducts from '@modules/orders/infra/typeorm/entities/OrdersProducts';
 import { Expose } from 'class-transformer';
@@ -54,9 +55,18 @@ class Product {
 
   @Expose({ name: 'image_url' })
   getAvatarUrl(): string | null {
-    return this.product_image !== 'null'
-      ? `${process.env.APP_API_URL}/files/${this.product_image}`
-      : null;
+    if (!this.product_image) {
+      return null;
+    }
+
+    switch (uploadConfig.driver) {
+      case 'disk':
+        return `${process.env.APP_API_URL}/files/${this.product_image}`;
+      case 's3':
+        return `https://${uploadConfig.config.aws.bucket}.s3.amazonaws.com/${this.product_image}`;
+      default:
+        return null;
+    }
   }
 }
 

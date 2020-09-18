@@ -19,7 +19,7 @@ const setHiddenProductController = new SetHiddenProductController();
 const getByBarcodeController = new GetByBarcodeController();
 const productRemovalController = new ProductRemovalController();
 
-const upload = multer(uploadConfig);
+const upload = multer(uploadConfig.multer);
 
 productsRouter.post(
   '/',
