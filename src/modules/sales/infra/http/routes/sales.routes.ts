@@ -51,6 +51,13 @@ salesRouter.get(
 salesRouter.get(
   '/unfinished',
   ensureAuthenticated,
+  celebrate({
+    [Segments.QUERY]: {
+      search: Joi.string(),
+      take: Joi.number().required(),
+      skip: Joi.number().required(),
+    },
+  }),
   salesUnfinishedController.index,
 );
 

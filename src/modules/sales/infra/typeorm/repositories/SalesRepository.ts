@@ -1,4 +1,4 @@
-import { getRepository, Repository, Between } from 'typeorm';
+import { getRepository, Repository, Between, Raw } from 'typeorm';
 
 import ISalesRepository from '@modules/sales/repositories/ISalesRepository';
 import ICreateSaleDTO from '@modules/sales/dtos/ICreateSaleDTO';
@@ -11,6 +11,7 @@ import {
   endOfMonth,
   addHours,
 } from 'date-fns';
+import IGetUnfinishedSalesDTO from '@modules/sales/dtos/IGetUnfinishedSalesDTO';
 import Sale from '../entities/Sale';
 
 class SalesRepository implements ISalesRepository {
@@ -110,10 +111,44 @@ class SalesRepository implements ISalesRepository {
     return salesEarlyPaid.concat(salesLatePaid);
   }
 
-  public async getUnfinished(): Promise<Sale[]> {
-    const sales = await this.ormRepository.find({
+  public async getUnfinished({
+    take,
+    skip,
+    search,
+  }: IGetUnfinishedSalesDTO): Promise<[Sale[], number]> {
+    if (!search) {
+      const sales = await this.ormRepository.findAndCount({
+        where: {
+          status: 'AGUARDANDO PAGAMENTO',
+        },
+        take,
+        skip,
+        order: {
+          created_at: 'ASC',
+        },
+      });
+
+      return sales;
+    }
+
+    let searchName = search.toUpperCase();
+    searchName = searchName.replace(/[ÀÁÂÃÄÅ]/, 'A');
+    searchName = searchName.replace(/[ÈÉÊË]/, 'E');
+    searchName = searchName.replace(/[ÚÙÛÜ]/, 'U');
+    searchName = searchName.replace(/[ÕÓÒÔÖ]/, 'O');
+    searchName = searchName.replace(/['Ç']/, 'C');
+
+    const sales = await this.ormRepository.findAndCount({
       where: {
-        status: 'AGUARDANDO PAGAMENTO',
+        client_name: Raw(
+          nameField =>
+            `${nameField} ILIKE '%${search}%' OR ${nameField} ILIKE '%${searchName}%'`,
+        ),
+      },
+      take,
+      skip,
+      order: {
+        created_at: 'ASC',
       },
     });
 

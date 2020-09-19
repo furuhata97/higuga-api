@@ -1,4 +1,3 @@
-import { DeleteResult } from 'typeorm';
 import Product from '../infra/typeorm/entities/Product';
 
 import ICreateProductDTO from '../dtos/ICreateProductDTO';
@@ -24,5 +23,4 @@ export default interface IProductsRepository {
   findBySearchAndCategoryField(
     data: ISearchProductDTO,
   ): Promise<[Product[], number]>;
-  // updateQuantity(products: IUpdateProductsQuantityDTO[]): Promise<Product[]>;
 }
