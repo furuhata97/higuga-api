@@ -90,6 +90,9 @@ class ProductsRepository implements IProductsRepository {
         where: { hidden: false },
         take,
         skip,
+        order: {
+          name: 'ASC',
+        },
       });
 
       return products;
@@ -98,6 +101,9 @@ class ProductsRepository implements IProductsRepository {
       const products = await this.ormRepository.findAndCount({
         take,
         skip,
+        order: {
+          name: 'ASC',
+        },
       });
 
       return products;
@@ -129,6 +135,9 @@ class ProductsRepository implements IProductsRepository {
         },
         take,
         skip,
+        order: {
+          name: 'ASC',
+        },
       });
 
       return products;
@@ -144,6 +153,9 @@ class ProductsRepository implements IProductsRepository {
         },
         take,
         skip,
+        order: {
+          name: 'ASC',
+        },
       });
 
       return products;
@@ -166,6 +178,9 @@ class ProductsRepository implements IProductsRepository {
         },
         take,
         skip,
+        order: {
+          name: 'ASC',
+        },
       });
 
       return products;

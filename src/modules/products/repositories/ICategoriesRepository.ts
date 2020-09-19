@@ -1,3 +1,4 @@
+import IGetCategoriesDTO from '../dtos/IGetCategoriesDTO';
 import Category from '../infra/typeorm/entities/Category';
 
 export default interface ICategoriesRepository {
@@ -6,5 +7,5 @@ export default interface ICategoriesRepository {
   findById(id: string): Promise<Category | undefined>;
   getAllCategories(): Promise<Category[]>;
   save(product: Category): Promise<Category>;
-  // updateQuantity(products: IUpdateProductsQuantityDTO[]): Promise<Product[]>;
+  getAllCategoriesAdmin(data: IGetCategoriesDTO): Promise<[Category[], number]>;
 }

@@ -11,6 +11,7 @@ import SearchProductsController from '../controllers/SearchProductsController';
 import SetHiddenProductController from '../controllers/SetHiddenProductController';
 import GetByBarcodeController from '../controllers/GetByBarcodeController';
 import ProductRemovalController from '../controllers/ProductRemovalController';
+import ProductsRemovalByDateController from '../controllers/ProductsRemovalByDateController';
 
 const productsRouter = Router();
 const productsController = new ProductsController();
@@ -18,6 +19,7 @@ const searchProductsController = new SearchProductsController();
 const setHiddenProductController = new SetHiddenProductController();
 const getByBarcodeController = new GetByBarcodeController();
 const productRemovalController = new ProductRemovalController();
+const productsRemovalByDateController = new ProductsRemovalByDateController();
 
 const upload = multer(uploadConfig.multer);
 
@@ -110,6 +112,18 @@ productsRouter.patch(
     },
   }),
   productRemovalController.update,
+);
+
+productsRouter.get(
+  '/removal-quantity',
+  ensureAuthenticated,
+  celebrate({
+    [Segments.QUERY]: {
+      date: Joi.date().required(),
+      type: Joi.string().required(),
+    },
+  }),
+  productsRemovalByDateController.index,
 );
 
 export default productsRouter;

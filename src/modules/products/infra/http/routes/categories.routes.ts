@@ -5,9 +5,11 @@ import { celebrate, Segments, Joi } from 'celebrate';
 import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAuthenticated';
 
 import CategoriesController from '../controllers/CategoriesController';
+import SearchCategoriesController from '../controllers/SearchCategoriesController';
 
 const categoriesRouter = Router();
 const categoriesController = new CategoriesController();
+const searchCategoriesController = new SearchCategoriesController();
 
 categoriesRouter.post(
   '/',
@@ -33,5 +35,17 @@ categoriesRouter.put(
 );
 
 categoriesRouter.get('/', categoriesController.index);
+
+categoriesRouter.get(
+  '/search',
+  celebrate({
+    [Segments.QUERY]: {
+      search: Joi.string(),
+      take: Joi.number().required(),
+      skip: Joi.number().required(),
+    },
+  }),
+  searchCategoriesController.index,
+);
 
 export default categoriesRouter;

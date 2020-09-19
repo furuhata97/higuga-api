@@ -1,7 +1,7 @@
-import { getRepository, Repository } from 'typeorm';
+import { getRepository, Repository, Raw } from 'typeorm';
 
 import ICategoriesRepository from '@modules/products/repositories/ICategoriesRepository';
-import AppError from '@shared/errors/AppError';
+import IGetCategoriesDTO from '@modules/products/dtos/IGetCategoriesDTO';
 import Category from '../entities/Category';
 
 class CategoriesRepository implements ICategoriesRepository {
@@ -42,7 +42,51 @@ class CategoriesRepository implements ICategoriesRepository {
   }
 
   public async getAllCategories(): Promise<Category[]> {
-    const categories = await this.ormRepository.find();
+    const categories = await this.ormRepository.find({
+      order: {
+        name: 'ASC',
+      },
+    });
+
+    return categories;
+  }
+
+  public async getAllCategoriesAdmin({
+    take,
+    skip,
+    search,
+  }: IGetCategoriesDTO): Promise<[Category[], number]> {
+    if (!search) {
+      const categories = await this.ormRepository.findAndCount({
+        take,
+        skip,
+        order: {
+          name: 'ASC',
+        },
+      });
+
+      return categories;
+    }
+    let searchName = search.toUpperCase();
+    searchName = searchName.replace(/[ÀÁÂÃÄÅ]/, 'A');
+    searchName = searchName.replace(/[ÈÉÊË]/, 'E');
+    searchName = searchName.replace(/[ÚÙÛÜ]/, 'U');
+    searchName = searchName.replace(/[ÕÓÒÔÖ]/, 'O');
+    searchName = searchName.replace(/['Ç']/, 'C');
+
+    const categories = await this.ormRepository.findAndCount({
+      where: {
+        name: Raw(
+          nameField =>
+            `${nameField} ILIKE '%${search}%' OR ${nameField} ILIKE '%${searchName}%'`,
+        ),
+      },
+      take,
+      skip,
+      order: {
+        name: 'ASC',
+      },
+    });
 
     return categories;
   }
