@@ -36,16 +36,6 @@ class GetFinishedSalesByDateService {
       const startDate = startOfDay(sale_date);
       const cacheKey = `sales-list:${JSON.stringify(startDate)}:${time}`;
 
-      // const sales = await this.cacheProvider.recover<Sale[]>(cacheKey);
-
-      // await this.cacheProvider.invalidate(
-      //   `sales-list:${JSON.stringify(startDate)}:day`,
-      // );
-
-      // return sales || [];
-
-      // ---------------------
-
       let sales = await this.cacheProvider.recover<Sale[]>(cacheKey);
 
       if (!sales || !sales.length) {
@@ -55,9 +45,6 @@ class GetFinishedSalesByDateService {
       }
 
       return sales;
-
-      // const sales = await this.salesRepository.getFinishedByDate(sale_date);
-      // return sales;
     }
 
     if (time === 'week') {

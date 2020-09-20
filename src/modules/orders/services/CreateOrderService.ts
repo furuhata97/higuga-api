@@ -1,8 +1,10 @@
 import { inject, injectable } from 'tsyringe';
+import { startOfMonth, startOfWeek, startOfDay } from 'date-fns';
 
 import AppError from '@shared/errors/AppError';
 import IUsersRepository from '@modules/users/repositories/IUsersRepository';
 import IProductsRepository from '@modules/products/repositories/IProductsRepository';
+import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider';
 import IOrdersRepository from '../repositories/IOrdersRepository';
 import Order from '../infra/typeorm/entities/Order';
 
@@ -33,6 +35,9 @@ class CreateOrderService {
 
     @inject('ProductsRepository')
     private productsRepository: IProductsRepository,
+
+    @inject('CacheProvider')
+    private cacheProvider: ICacheProvider,
   ) {}
 
   public async execute({
@@ -113,6 +118,22 @@ class CreateOrderService {
       const updatedProduct = await this.productsRepository.save(product);
       return updatedProduct;
     });
+
+    const startDay = startOfDay(new Date());
+    const startWeek = startOfWeek(new Date());
+    const startMonth = startOfMonth(new Date());
+
+    await this.cacheProvider.invalidate(
+      `orders-list:${JSON.stringify(startDay)}:day`,
+    );
+
+    await this.cacheProvider.invalidate(
+      `orders-list:${JSON.stringify(startWeek)}:week`,
+    );
+
+    await this.cacheProvider.invalidate(
+      `orders-list:${JSON.stringify(startMonth)}:month`,
+    );
 
     return order;
   }

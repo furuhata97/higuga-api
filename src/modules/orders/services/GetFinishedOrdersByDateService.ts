@@ -1,6 +1,9 @@
 import { inject, injectable } from 'tsyringe';
+import { startOfDay, startOfWeek, startOfMonth } from 'date-fns';
+import { classToClass } from 'class-transformer';
 
 import AppError from '@shared/errors/AppError';
+import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider';
 import IOrdersRepository from '../repositories/IOrdersRepository';
 import Order from '../infra/typeorm/entities/Order';
 
@@ -15,6 +18,9 @@ class GetFinishedOrdersByDateService {
   constructor(
     @inject('OrdersRepository')
     private ordersRepository: IOrdersRepository,
+
+    @inject('CacheProvider')
+    private cacheProvider: ICacheProvider,
   ) {}
 
   public async execute({
@@ -27,19 +33,46 @@ class GetFinishedOrdersByDateService {
     }
 
     if (time === 'day') {
-      const orders = this.ordersRepository.getFinishedByDate(order_date);
+      const startDate = startOfDay(order_date);
+      const cacheKey = `orders-list:${JSON.stringify(startDate)}:${time}`;
+
+      let orders = await this.cacheProvider.recover<Order[]>(cacheKey);
+
+      if (!orders || !orders.length) {
+        orders = await this.ordersRepository.getFinishedByDate(order_date);
+
+        await this.cacheProvider.save(cacheKey, classToClass(orders));
+      }
 
       return orders;
     }
 
     if (time === 'week') {
-      const orders = this.ordersRepository.getFinishedByWeek(order_date);
+      const startDate = startOfWeek(order_date);
+      const cacheKey = `orders-list:${JSON.stringify(startDate)}:${time}`;
+
+      let orders = await this.cacheProvider.recover<Order[]>(cacheKey);
+
+      if (!orders || !orders.length) {
+        orders = await this.ordersRepository.getFinishedByWeek(order_date);
+
+        await this.cacheProvider.save(cacheKey, classToClass(orders));
+      }
 
       return orders;
     }
 
     if (time === 'month') {
-      const orders = this.ordersRepository.getFinishedByMonth(order_date);
+      const startDate = startOfMonth(order_date);
+      const cacheKey = `orders-list:${JSON.stringify(startDate)}:${time}`;
+
+      let orders = await this.cacheProvider.recover<Order[]>(cacheKey);
+
+      if (!orders || !orders.length) {
+        orders = await this.ordersRepository.getFinishedByMonth(order_date);
+
+        await this.cacheProvider.save(cacheKey, classToClass(orders));
+      }
 
       return orders;
     }
