@@ -1,6 +1,8 @@
 import { injectable, inject } from 'tsyringe';
+import path from 'path';
 
 import AppError from '@shared/errors/AppError';
+import IMailProvider from '@shared/container/providers/MailProvider/models/IMailProvider';
 import User from '../infra/typeorm/entities/User';
 
 import IUsersRepository from '../repositories/IUsersRepository';
@@ -15,6 +17,9 @@ class SetAdminService {
   constructor(
     @inject('UsersRepository')
     private usersRepository: IUsersRepository,
+
+    @inject('MailProvider')
+    private mailProvider: IMailProvider,
   ) {}
 
   public async execute({ is_admin, user_id }: IRequest): Promise<User> {
@@ -30,7 +35,32 @@ class SetAdminService {
 
     user.is_admin = !user.is_admin;
 
-    return this.usersRepository.save(user);
+    const savedUser = await this.usersRepository.save(user);
+
+    const setAdminTemplate = path.resolve(
+      __dirname,
+      '..',
+      'views',
+      'set_admin.hbs',
+    );
+
+    if (savedUser.is_admin) {
+      await this.mailProvider.sendMail({
+        to: {
+          name: user.name,
+          email: user.email,
+        },
+        subject: '[Higuga] Privilégio de Administrador',
+        templateData: {
+          file: setAdminTemplate,
+          variables: {
+            name: user.name,
+          },
+        },
+      });
+    }
+
+    return savedUser;
   }
 }
 
