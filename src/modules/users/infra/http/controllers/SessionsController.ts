@@ -16,4 +16,10 @@ export default class SessionsController {
     });
     return response.json({ user: classToClass(user), token });
   }
+
+  public async index(request: Request, response: Response): Promise<Response> {
+    const { id, is_admin } = request.user;
+
+    return response.json({ id, is_admin });
+  }
 }
