@@ -4,6 +4,8 @@ import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import 'express-async-errors';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import csrf from 'csurf';
 import { errors } from 'celebrate';
 
 import uploadConfig from '@config/upload';
@@ -16,8 +18,19 @@ import '@shared/container';
 
 const app = express();
 
-app.use(cors());
+const csrfProtection = csrf({
+  cookie: true,
+});
+
+app.use(
+  cors({
+    origin: process.env.APP_WEB_URL,
+    credentials: true,
+  }),
+);
 app.use(express.json());
+app.use(cookieParser());
+app.use(csrfProtection);
 app.use('/files', express.static(uploadConfig.uploadsFolder));
 app.use(rateLimiter);
 app.use(routes);

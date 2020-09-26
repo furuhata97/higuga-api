@@ -17,13 +17,12 @@ export default function ensureAuthenticated(
   response: Response,
   next: NextFunction,
 ): void {
-  const authHeader = request.headers.authorization;
+  const cookie_token = request.cookies.token;
 
-  if (!authHeader) {
-    throw new AppError('JWT token is missing', 401);
+  if (!cookie_token) {
+    throw new AppError('JWT token is missing', 404);
   }
 
-  const [, token] = authHeader.split(' ');
   const { secret } = authConfig.jwt;
 
   if (!secret) {
@@ -31,7 +30,7 @@ export default function ensureAuthenticated(
   }
 
   try {
-    const decoded = verify(token, secret);
+    const decoded = verify(cookie_token, secret);
     const { sub, is_admin } = decoded as ITokenPayload;
     request.user = {
       id: sub,

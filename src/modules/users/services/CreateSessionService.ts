@@ -1,7 +1,9 @@
 import { injectable, inject } from 'tsyringe';
+import { uuid } from 'uuidv4';
 import { sign } from 'jsonwebtoken';
 import authConfig from '@config/auth';
 import AppError from '@shared/errors/AppError';
+import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider';
 import User from '../infra/typeorm/entities/User';
 
 import IUsersRepository from '../repositories/IUsersRepository';
@@ -15,6 +17,7 @@ interface IRequest {
 interface IResponse {
   user: User;
   token: string;
+  refreshToken: string;
 }
 
 @injectable()
@@ -25,6 +28,9 @@ class AuthenticateUserService {
 
     @inject('HashProvider')
     private hashProvider: IHashProvider,
+
+    @inject('CacheProvider')
+    private cacheProvider: ICacheProvider,
   ) {}
 
   public async execute({ email, password }: IRequest): Promise<IResponse> {
@@ -44,7 +50,7 @@ class AuthenticateUserService {
     }
 
     if (!authConfig.jwt?.secret) {
-      throw new AppError('Internal error. Unable to authenticate');
+      throw new AppError('Internal error. Unable to authenticate', 500);
     }
 
     const { secret, expiresIn } = authConfig.jwt;
@@ -53,6 +59,14 @@ class AuthenticateUserService {
       subject: user.id,
       expiresIn,
     });
+
+    const refreshToken = uuid();
+
+    const cacheKey = `refresh-token:${refreshToken}`;
+    await this.cacheProvider.save(
+      cacheKey,
+      JSON.stringify({ token, refreshToken, user_id: user.id }),
+    );
 
     const addresses = user.addresses.sort((a, b) => {
       return +new Date(a.created_at) - +new Date(b.created_at);
@@ -63,6 +77,7 @@ class AuthenticateUserService {
     return {
       user,
       token,
+      refreshToken,
     };
   }
 }
