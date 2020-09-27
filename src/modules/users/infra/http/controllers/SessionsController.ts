@@ -16,8 +16,11 @@ export default class SessionsController {
       password,
     });
 
-    response.cookie('token', token, { httpOnly: true });
-    response.cookie('refreshToken', refreshToken, { httpOnly: true });
+    response.cookie('token', token, { httpOnly: true, secure: true });
+    response.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
 
     return response.json({ user: classToClass(user) });
   }
